@@ -1,6 +1,8 @@
 use crate::error::RedisError;
 use crate::types::RespVersion;
 use crate::utils;
+#[cfg(feature = "serde")]
+use serde::Deserialize;
 use std::cmp;
 use url::Url;
 
@@ -15,6 +17,7 @@ pub const DEFAULT_JITTER_MS: u32 = 100;
 ///
 /// Use a `max_attempts` value of `0` to retry forever.
 #[derive(Clone, Debug, Eq, PartialEq)]
+#[cfg_attr(feature = "serde", derive(Deserialize))]
 pub enum ReconnectPolicy {
   /// Wait a constant amount of time between reconnect attempts, in ms.
   Constant {
@@ -183,6 +186,7 @@ impl ReconnectPolicy {
 
 /// Describes how the client should respond when a command is sent while the client is in a blocked state from a blocking command.
 #[derive(Clone, Debug, Eq, PartialEq)]
+#[cfg_attr(feature = "serde", derive(Deserialize))]
 pub enum Blocking {
   /// Wait to send the command until the blocked command finishes. (Default)
   Block,
@@ -200,6 +204,7 @@ impl Default for Blocking {
 
 /// Configuration options for backpressure features in the client.
 #[derive(Clone, Debug, Eq, PartialEq)]
+#[cfg_attr(feature = "serde", derive(Deserialize))]
 pub struct BackpressureConfig {
   /// Whether or not to disable the automatic backpressure features when pipelining is enabled.
   ///
@@ -238,6 +243,7 @@ impl Default for BackpressureConfig {
 
 /// Configuration options that can affect the performance of the client.
 #[derive(Clone, Debug, Eq, PartialEq)]
+#[cfg_attr(feature = "serde", derive(Deserialize))]
 pub struct PerformanceConfig {
   /// Whether or not the client should automatically pipeline commands when possible.
   ///
@@ -286,6 +292,7 @@ impl Default for PerformanceConfig {
 
 /// Configuration options for a `RedisClient`.
 #[derive(Clone, Debug, Eq, PartialEq)]
+#[cfg_attr(feature = "serde", derive(Deserialize))]
 pub struct RedisConfig {
   /// Whether or not the client should return an error if it cannot connect to the server the first time when being initialized.
   /// If `false` the client will run the reconnect logic if it cannot connect to the server the first time, but if `true` the client
@@ -565,6 +572,7 @@ impl RedisConfig {
 
 /// Connection configuration for the Redis server.
 #[derive(Clone, Debug, Eq, PartialEq)]
+#[cfg_attr(feature = "serde", derive(Deserialize))]
 pub enum ServerConfig {
   Centralized {
     /// The hostname or IP address of the Redis server.

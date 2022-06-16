@@ -2,7 +2,7 @@ use crate::error::RedisError;
 use crate::types::RespVersion;
 use crate::utils;
 #[cfg(feature = "serde")]
-use serde::Deserialize;
+use serde::{de::Deserializer, Deserialize};
 use std::cmp;
 use url::Url;
 
@@ -330,6 +330,7 @@ pub struct RedisConfig {
   /// Note: upgrading an existing codebase from RESP2 to RESP3 may require changing certain type signatures. RESP3 has a slightly different type system than RESP2.
   ///
   /// Default: `RESP2`
+  #[serde(deserialize_with = "resp_version")]
   pub version: RespVersion,
   /// Configuration options that can affect the performance of the client.
   pub performance: PerformanceConfig,
@@ -351,6 +352,35 @@ pub struct RedisConfig {
   #[cfg(feature = "partial-tracing")]
   #[cfg_attr(docsrs, doc(cfg(feature = "partial-tracing")))]
   pub tracing: bool,
+}
+
+#[cfg(feature = "serde")]
+fn resp_version<'de, D>(deserializer: D) -> Result<RespVersion, D::Error>
+where
+  D: Deserializer<'de>,
+{
+  struct FieldVisitor;
+
+  impl<'de> serde::de::Visitor<'de> for FieldVisitor {
+    type Value = RespVersion;
+
+    fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+      formatter.write_str("`RESP2` or `RESP3`")
+    }
+
+    fn visit_str<E>(self, value: &str) -> Result<Self::Value, E>
+    where
+      E: serde::de::Error,
+    {
+      match value {
+        "resp2" | "RESP2" => Ok(RespVersion::RESP2),
+        "resp3" | "RESP3" => Ok(RespVersion::RESP3),
+        _ => Err(serde::de::Error::unknown_field(value, &["version"])),
+      }
+    }
+  }
+
+  deserializer.deserialize_identifier(FieldVisitor)
 }
 
 impl Default for RedisConfig {

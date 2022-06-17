@@ -304,10 +304,12 @@ pub struct RedisConfig {
   /// Note: Callers should use caution setting this to `false` since it can make debugging configuration issues more difficult.
   ///
   /// Default: `true`
+  #[cfg_attr(feature = "serde", serde(default))]
   pub fail_fast: bool,
   /// The default behavior of the client when a command is sent while the connection is blocked on a blocking command.
   ///
   /// Default: `Blocking::Block`
+  #[cfg_attr(feature = "serde", serde(default))]
   pub blocking: Blocking,
   /// An optional ACL username for the client to use when authenticating. If ACL rules are not configured this should be `None`.
   ///
@@ -320,6 +322,7 @@ pub struct RedisConfig {
   /// Connection configuration for the server(s).
   ///
   /// Default: `Centralized(localhost, 6379)`
+  #[cfg_attr(feature = "serde", serde(default))]
   pub server: ServerConfig,
   /// The protocol version to use when communicating with the server(s).
   ///
@@ -330,9 +333,11 @@ pub struct RedisConfig {
   /// Note: upgrading an existing codebase from RESP2 to RESP3 may require changing certain type signatures. RESP3 has a slightly different type system than RESP2.
   ///
   /// Default: `RESP2`
-  #[serde(deserialize_with = "resp_version")]
+  #[cfg_attr(feature = "serde", serde(deserialize_with = "resp_version"))]
+  #[cfg_attr(feature = "serde", serde(default))]
   pub version: RespVersion,
   /// Configuration options that can affect the performance of the client.
+  #[cfg_attr(feature = "serde", serde(default))]
   pub performance: PerformanceConfig,
   /// An optional database number that the client will automatically `SELECT` after connecting or reconnecting.
   ///
@@ -351,6 +356,7 @@ pub struct RedisConfig {
   /// Default: `false`
   #[cfg(feature = "partial-tracing")]
   #[cfg_attr(docsrs, doc(cfg(feature = "partial-tracing")))]
+  #[cfg_attr(all(feature = "serde", feature = "partial-tracing"), serde(default))]
   pub tracing: bool,
 }
 
@@ -364,7 +370,7 @@ where
   impl<'de> serde::de::Visitor<'de> for FieldVisitor {
     type Value = RespVersion;
 
-    fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+    fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {
       formatter.write_str("`RESP2` or `RESP3`")
     }
 

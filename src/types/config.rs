@@ -290,6 +290,10 @@ impl Default for PerformanceConfig {
   }
 }
 
+const fn resp_default() -> RespVersion {
+  RespVersion::RESP2
+}
+
 /// Configuration options for a `RedisClient`.
 #[derive(Clone, Debug, Eq, PartialEq)]
 #[cfg_attr(feature = "serde", derive(Deserialize))]
@@ -334,7 +338,7 @@ pub struct RedisConfig {
   ///
   /// Default: `RESP2`
   #[cfg_attr(feature = "serde", serde(deserialize_with = "resp_version"))]
-  #[cfg_attr(feature = "serde", serde(default))]
+  #[cfg_attr(feature = "serde", serde(default = "resp_default"))]
   pub version: RespVersion,
   /// Configuration options that can affect the performance of the client.
   #[cfg_attr(feature = "serde", serde(default))]
